@@ -26,12 +26,18 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
+# Atur hak akses folder agar bisa dibaca Nginx
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
 # Install dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Setup Nginx configuration
 COPY ./nginx.conf /etc/nginx/sites-available/default
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# Expose port and start nginx and php-fpm
+# Expose port 80
 EXPOSE 80
-CMD service nginx start && php-fpm
+
+# Jalankan PHP-FPM di background, dan Nginx di foreground agar kontainer tidak mati
+CMD php-fpm -D && nginx -g "daemon off;"
