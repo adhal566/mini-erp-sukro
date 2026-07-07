@@ -32,12 +32,13 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 # Install dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
-# Setup Nginx configuration
+# === BAGIAN INI YANG DIUBAH (HAPUS DEFAULT LAMA & PASANG YANG BARU) ===
+RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
 COPY ./nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Expose port 80
 EXPOSE 80
 
-# Jalankan PHP-FPM di background, dan Nginx di foreground agar kontainer tidak mati
+# Jalankan PHP-FPM di background, dan Nginx di foreground
 CMD php-fpm -D && nginx -g "daemon off;"
